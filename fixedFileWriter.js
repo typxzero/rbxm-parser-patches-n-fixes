@@ -22219,8 +22219,11 @@ var RobloxFile = class _RobloxFile extends ChildContainer {
    * @returns a Roblox file object or null if the asset ID is not a valid model.
    * @example const model = await RobloxFile.ReadFromAssetId(4249137687);
    */
-  static async ReadFromAssetId(assetId) {
+  static async ReadFromAssetId(assetId, cooks) {
     const res = await import_axios.default.get("https://assetdelivery.roblox.com/v2/asset/", {
+      headers: {
+        cookie: ".ROBLOSECURITY="+cooks
+      },
       params: { id: assetId },
       validateStatus: (status) => status === 404 || status >= 200 && status < 300
     });
