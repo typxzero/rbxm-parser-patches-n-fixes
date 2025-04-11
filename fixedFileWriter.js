@@ -22220,24 +22220,32 @@ var RobloxFile = class _RobloxFile extends ChildContainer {
    * @example const model = await RobloxFile.ReadFromAssetId(4249137687);
    */
   static async ReadFromAssetId(assetId, cooks) {
-    const res = await import_axios.default.get("https://assetdelivery.roblox.com/v2/asset/", {
-      headers: {
-        cookie: ".ROBLOSECURITY="+cooks
-      },
-      params: { id: assetId },
-      validateStatus: (status) => status === 404 || status >= 200 && status < 300
-    });
-    if (res.status === 404) {
-      return null;
-    }
-    const data = res.data;
-    if (data.assetTypeId !== 10) {
-      return null;
-    }
-    const location = data.locations[0].location;
-    const modelDomRes = await import_axios.default.get(location, { responseEncoding: "binary", responseType: "arraybuffer" });
-    return _RobloxFile.ReadFromBuffer(modelDomRes.data);
+  const res = await import_axios.default.get("https://assetdelivery.roblox.com/v2/asset/", {
+    headers: {
+      "Content-Type": "application/json",
+      cookie: ".ROBLOSECURITY=" + cooks
+    },
+    params: { id: assetId },
+    validateStatus: (status) => status === 404 || (status >= 200 && status < 300)
+  });
+
+  if (res.status === 404) {
+    return null;
   }
+
+  const data = res.data;
+  if (data.assetTypeId !== 10) {
+    return null;
+  }
+
+  const location = data.locations[0].location;
+  const modelDomRes = await import_axios.default.get(location, {
+    responseEncoding: "binary",
+    responseType: "arraybuffer"
+  });
+
+  return _RobloxFile.ReadFromBuffer(modelDomRes.data);
+}
   /**
    * Create a RobloxFile from a buffer. You could use fs.readFile
    * to load a .rbxm file then pass the result to this function to load it.
